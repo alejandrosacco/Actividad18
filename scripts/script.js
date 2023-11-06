@@ -41,7 +41,25 @@ deleteInput.addEventListener("input", ()=>{
     else{
         document.getElementById("btnDelete").disabled = true;
     }
-})
+});
+
+document.getElementById("inputPutNombre").addEventListener("input", ()=>{
+    if(document.getElementById("inputPutNombre").value != "" && document.getElementById("inputPutApellido").value != ""){
+        document.getElementById("btnSendChanges").disabled = false;
+    }
+    else{
+        document.getElementById("btnSendChanges").disabled = true;
+    }
+});
+
+document.getElementById("inputPutApellido").addEventListener("input", ()=>{
+    if(document.getElementById("inputPutNombre").value != "" && document.getElementById("inputPutApellido").value != ""){
+        document.getElementById("btnSendChanges").disabled = false;
+    }
+    else{
+        document.getElementById("btnSendChanges").disabled = true;
+    }
+});
 
 function getData(id){
     let newurl = url;
@@ -50,12 +68,7 @@ function getData(id){
     }
     lista.innerHTML = ``;
     fetch(newurl)
-    .then(response => {
-        if(!response.ok){
-            document.getElementById("alert-error").hidden = false;
-        }
-        return response.json()
-    })
+    .then(response => response.json())
     .then(data => {
         if(id == null){
             for(let i = 0; i < data.length; i++){
@@ -68,22 +81,25 @@ function getData(id){
             lista.innerHTML += info;
         }
     })
+    .catch(error =>{
+        console.error('Fetch failed', error);
+    })
 };
 
 function postData(){
     fetch(url, {
         headers:{"Content-Type": "application/json; charset=utf-8"},
         method: "POST",
-        body:JSON.stringify({
+        body: JSON.stringify({
             name: newName.value,
             lastname: newLastname.value,
         })
     })
     .then(response => response.json())
     .then(data => {
-    newName.value = "";
-    newLastname.value = "";
-    console.log(data);
+        newName.value = "";
+        newLastname.value = "";
+        console.log(data);
     });
 };
 
@@ -92,13 +108,13 @@ function putData(id){
     fetch(newurl, {
         headers:{"Content-Type": "application/json; charset=utf-8"},
         method: "PUT",
-        body:JSON.stringify({
+        body: JSON.stringify({
             name: document.getElementById("inputPutNombre").value,
             lastname: document.getElementById("inputPutApellido").value,
         })
-        .then(response => response.json())
-        .then(data => console.log(data))
-    });
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
 };
 
 function deleteData(id){
@@ -127,6 +143,20 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
     document.getElementById("btnDelete").addEventListener("click", ()=>{
         deleteData(deleteInput.value);
+        getData();
+    });
+
+    document.getElementById("btnPut").addEventListener("click", ()=>{
+        fetch(url + putID.value)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("inputPutNombre").value = data.name;
+            document.getElementById("inputPutApellido").value = data.lastname;
+        })
+    })
+
+    document.getElementById("btnSendChanges").addEventListener("click", ()=>{
+        putData(document.getElementById("inputPutId").value);
         getData();
     })
 })
