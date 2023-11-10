@@ -68,7 +68,12 @@ function getData(id){
     }
     lista.innerHTML = ``;
     fetch(newurl)
-    .then(response => response.json())
+    .then (response =>{
+        if (!response.ok){
+            throw new Error ("La solicitud no fue existosa")
+        } 
+        return response.json ();
+    })
     .then(data => {
         if(id == null){
             for(let i = 0; i < data.length; i++){
@@ -82,7 +87,7 @@ function getData(id){
         }
     })
     .catch(error =>{
-        console.error('Fetch failed', error);
+        alert ("Algo salió mal..." + error.message)
     })
 };
 
@@ -95,12 +100,21 @@ function postData(){
             lastname: newLastname.value,
         })
     })
-    .then(response => response.json())
+    .then (response =>{
+        if (!response.ok){
+            throw new Error ("La solicitud no fue existosa")
+        } 
+        return response.json ();
+    })
     .then(data => {
         newName.value = "";
         newLastname.value = "";
         console.log(data);
-    });
+        getData();
+    })
+    .catch(error =>{
+        alert ("Algo salió mal..." + error.message)
+    })
 };
 
 function putData(id){
@@ -113,8 +127,19 @@ function putData(id){
             lastname: document.getElementById("inputPutApellido").value,
         })
     })
-    .then(response => response.json())
-    .then(data => console.log(data))
+    .then (response =>{
+        if (!response.ok){
+            throw new Error ("La solicitud no fue existosa")
+        } 
+        return response.json ();
+    })
+    .then(data => {
+        console.log(data)
+        getData()
+    })
+    .catch(error =>{
+        alert ("Algo salió mal..." + error.message)
+    })
 };
 
 function deleteData(id){
@@ -122,7 +147,19 @@ function deleteData(id){
     fetch(newurl, {
         method: "DELETE"
     })
-    .then(() => alert("Se ha eliminado el elemento"))
+    .then (response =>{
+        if (!response.ok){
+            throw new Error ("La solicitud no fue existosa")
+        } 
+        return response.json ();
+    })
+    .then(() => {
+        alert("Se ha eliminado el elemento")
+        getData()
+    })
+    .catch(error =>{
+        alert ("Algo salió mal..." + error.message)
+    })
 };
 
 
@@ -138,12 +175,10 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
     document.getElementById("btnPost").addEventListener("click", ()=>{
         postData();
-        getData();
     });
 
     document.getElementById("btnDelete").addEventListener("click", ()=>{
         deleteData(deleteInput.value);
-        getData();
     });
 
     document.getElementById("btnPut").addEventListener("click", ()=>{
@@ -157,6 +192,5 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
     document.getElementById("btnSendChanges").addEventListener("click", ()=>{
         putData(document.getElementById("inputPutId").value);
-        getData();
     })
 })
